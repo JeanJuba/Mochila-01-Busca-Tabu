@@ -12,7 +12,7 @@ import java.util.Random;
 public class Busca {
 
     double b = 400;                 //Peso máximo
-    private int maxBT = 100;          //Número máximo de iterações sem melhora
+    private int maxBT = 400;          //Número máximo de iterações sem melhora
 
     private String[] itemNames;     //Nomes dos itens
     private double[] pesos;         //Pesos dos itens
@@ -68,6 +68,7 @@ public class Busca {
     }
 
     //</editor-fold>
+    
     //<editor-fold defaultstate="collapsed" desc="ALGORITMO">
     public void run() {
         int itAtual = 0;
@@ -78,7 +79,7 @@ public class Busca {
             System.out.println("\n" + Arrays.toString(currentSolution));
             System.out.println("Random: " + random);
             if (!isTabu(random)) {
-                tabu.add(random);
+                addToTabu(random);
                 if (currentSolution[random] == 0) {
                     currentSolution[random] = 1;
                 } else {
@@ -134,6 +135,13 @@ public class Busca {
         return new Random().nextInt(itemNames.length);
     }
 
+    private void addToTabu(int value){
+        if(tabu.size() > 10){
+            tabu.remove(0);
+        }
+        tabu.add(value);
+    }
+    
     private boolean isTabu(int i) {
         return tabu.contains(i);
     }
