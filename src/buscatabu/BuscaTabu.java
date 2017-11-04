@@ -16,6 +16,10 @@ public class BuscaTabu {
      */
     public static void main(String[] args) {
         // TODO code application logic here
+        Busca b = new Busca();
+        b.run();
+        b.printData();
+        
     }
     
 }
