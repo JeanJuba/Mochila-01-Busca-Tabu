@@ -1,3 +1,8 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
 package buscatabu;
 
 import java.util.ArrayList;
@@ -7,9 +12,9 @@ import java.util.Random;
 
 /**
  *
- * @author m95952
+ * @author Usuario
  */
-public class Busca {
+public class BuscaAlternativa {
 
     double b = 400;                 //Peso máximo
     private int maxBT = 400;          //Número máximo de iterações sem melhora
@@ -28,8 +33,7 @@ public class Busca {
 
     private List<Integer> tabu;
 
-    public Busca() {
-
+    public BuscaAlternativa() {
         itemNames = new String[]{"map", "compass", "water", "sandwich", "glucose", "tin", "banana", "apple",
             "cheese", "beer", "suntan cream", "camera", "T-shirt", "trousers", "umbrella", "waterproof trousers",
             "waterproof overclothes", "note-case", "sunglasses", "towel", "socks", "book"};
@@ -69,19 +73,17 @@ public class Busca {
     }
 
     //</editor-fold>
-    
     //<editor-fold defaultstate="collapsed" desc="ALGORITMO">
     public void run() {
         int itAtual = 0;
         int random = 0;
-        
+
         while ((itAtual - bestIt) < maxBT) {
             itAtual++;
-            random = getRandomPosition();
-            //random++;
-            //if(random == itemNames.length){
-                //random = 0;
-            //}
+            //random = getRandomPosition();
+            if (random == itemNames.length) {
+                random = 0;
+            }
             System.out.println("\n" + Arrays.toString(currentSolution));
             System.out.println("Random: " + random);
             if (!isTabu(random)) {
@@ -109,36 +111,37 @@ public class Busca {
                 bestIt = itAtual;
                 bestSolucao = bestNeighbor;
             }
+            random++;
         }
     }
 
-    private int[] findBestNeighbor(int[] currentSolution){
+    private int[] findBestNeighbor(int[] currentSolution) {
         int[][] neighbors = new int[currentSolution.length][currentSolution.length];
-        
-        for(int i = 0; i < currentSolution.length; i++){
+
+        for (int i = 0; i < currentSolution.length; i++) {
             int[] temp = currentSolution.clone();
-            if(temp[i] == 0){
+            if (temp[i] == 0) {
                 temp[i] = 1;
-            }else{
+            } else {
                 temp[i] = 0;
             }
-            
+
             neighbors[i] = temp.clone();
         }
-        
+
         int[] bestNeighborFound = new int[bestSolucao.length];
         double bestBeneficio = 0;
-        
-        for(int[] sol: neighbors){
+
+        for (int[] sol : neighbors) {
             double val = avaliacao(sol);
-            if(val > bestBeneficio){
+            if (val > bestBeneficio) {
                 bestNeighborFound = sol.clone();
             }
         }
-        
+
         return bestNeighborFound;
     }
-    
+
     /**
      * Avalia se a solução gerada é melhor que a atual mesmo com as penalidades
      * caso ela for maior que o peso
@@ -169,13 +172,13 @@ public class Busca {
         return new Random().nextInt(itemNames.length);
     }
 
-    private void addToTabu(int value){
-        if(tabu.size() > 10){
+    private void addToTabu(int value) {
+        if (tabu.size() > 10) {
             tabu.remove(0);
         }
         tabu.add(value);
     }
-    
+
     private boolean isTabu(int i) {
         return tabu.contains(i);
     }

@@ -17,6 +17,7 @@ public class BuscaTabu {
     public static void main(String[] args) {
         // TODO code application logic here
         Busca b = new Busca();
+        //BuscaAlternativa b = new BuscaAlternativa();
         b.run();
         b.printData();
         
