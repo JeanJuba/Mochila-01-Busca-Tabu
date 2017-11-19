@@ -69,41 +69,21 @@ public class Busca {
     }
 
     //</editor-fold>
-    
     //<editor-fold defaultstate="collapsed" desc="ALGORITMO">
+    /**
+     * Método principal do algortimo
+     */
     public void run() {
         int itAtual = 0;
         int random = 0;
-        
+
         while ((itAtual - bestIt) < maxBT) {
             itAtual++;
-            random = getRandomPosition();
-            //random++;
-            //if(random == itemNames.length){
-                //random = 0;
-            //}
-            System.out.println("\n" + Arrays.toString(currentSolution));
-            System.out.println("Random: " + random);
-            if (!isTabu(random)) {
-                addToTabu(random);
-                if (currentSolution[random] == 0) {
-                    currentSolution[random] = 1;
-                } else {
-                    currentSolution[random] = 0;
-                }
-            } else {
-                if (funcaoAspiracao(random, currentSolution.clone())) {
-                    if (currentSolution[random] == 0) {
-                        currentSolution[random] = 1;
-                    } else {
-                        currentSolution[random] = 0;
-                    }
-                }
-            }
 
             int[] bestNeighbor = findBestNeighbor(currentSolution);
+            currentSolution = bestNeighbor.clone();
             double aval = avaliacao(bestNeighbor);
-            System.out.println("Ite: " + itAtual + " avaliacao: " + aval);
+
             if (aval > bestAvaliacao) {
                 bestAvaliacao = aval;
                 bestIt = itAtual;
@@ -112,36 +92,53 @@ public class Busca {
         }
     }
 
-    private int[] findBestNeighbor(int[] currentSolution){
+    /**
+     * Encontra o melhor vizinho da solução.
+     *
+     * @param currentSolution
+     * @return
+     */
+    private int[] findBestNeighbor(int[] currentSolution) {
         int[][] neighbors = new int[currentSolution.length][currentSolution.length];
-        
-        for(int i = 0; i < currentSolution.length; i++){
+
+        for (int i = 0; i < currentSolution.length; i++) {
             int[] temp = currentSolution.clone();
-            if(temp[i] == 0){
+            if (temp[i] == 0) {
                 temp[i] = 1;
-            }else{
+            } else {
                 temp[i] = 0;
             }
-            
+
             neighbors[i] = temp.clone();
         }
-        
+
         int[] bestNeighborFound = new int[bestSolucao.length];
         double bestBeneficio = 0;
-        
-        for(int[] sol: neighbors){
-            double val = avaliacao(sol);
-            if(val > bestBeneficio){
-                bestNeighborFound = sol.clone();
+        int tabuPos = 0;
+
+        for (int i = 0; i < neighbors.length; i++) {
+            double val = avaliacao(neighbors[i]);
+            if (val > bestBeneficio) {
+                if (isTabu(i)) {
+                    if (funcaoAspiracao(neighbors[i])) {
+                        bestNeighborFound = neighbors[i].clone();
+                        bestBeneficio = val;
+                        tabuPos = i;
+                    }
+                } else {
+                    bestNeighborFound = neighbors[i].clone();
+                    bestBeneficio = val;
+                    tabuPos = i;
+                }
             }
         }
-        
+        addToTabu(tabuPos);
         return bestNeighborFound;
     }
-    
+
     /**
-     * Avalia se a solução gerada é melhor que a atual mesmo com as penalidades
-     * caso ela for maior que o peso
+     * Avalia se a solução gerada é melhor que a atual mesmo com as penalidades caso ela for maior
+     * que o peso
      */
     private double avaliacao(int[] solution) {
         double beneficio = 0;
@@ -158,24 +155,34 @@ public class Busca {
             }
         }
 
-        System.out.println("Aval Beneficio: " + beneficio);
-        System.out.println("Aval peso: " + peso);
+        //System.out.println("Aval Beneficio: " + beneficio);
+        //System.out.println("Aval peso: " + peso);
         double max = Math.max(0, peso - b);
 
         return beneficio - alpha * max;
     }
 
+    /**
+     * Gera o valor de uma posição aleatória do vetor de items
+     *
+     * @return
+     */
     private int getRandomPosition() {
         return new Random().nextInt(itemNames.length);
     }
 
-    private void addToTabu(int value){
-        if(tabu.size() > 10){
+    /**
+     * Adiciona para a lista tabu caso o tamanho dela for maior que 10
+     *
+     * @param value
+     */
+    private void addToTabu(int value) {
+        if (tabu.size() > 15) {
             tabu.remove(0);
         }
         tabu.add(value);
     }
-    
+
     private boolean isTabu(int i) {
         return tabu.contains(i);
     }
@@ -193,14 +200,9 @@ public class Busca {
     /**
      * Função que avalia se deve ser permitido um movimento tabu após um tempo
      */
-    private boolean funcaoAspiracao(int position, int[] solution) {
-        if (solution[position] == 0) {
-            solution[position] = 1;
-        } else {
-            solution[position] = 0;
-        }
-
+    private boolean funcaoAspiracao(int[] solution) {
         double beneficio = 0;
+
         for (int i = 0; i < solution.length; i++) {
             if (solution[i] == 1) {
                 beneficio += beneficios[i];
@@ -214,8 +216,8 @@ public class Busca {
             }
         }
 
-        System.out.println("Aval Beneficio: " + beneficio);
-        System.out.println("Aval peso: " + peso);
+        //System.out.println("Aval Beneficio: " + beneficio);
+        //System.out.println("Aval peso: " + peso);
         double max = Math.max(0, peso - b);
 
         double aval = beneficio - alpha * max;
